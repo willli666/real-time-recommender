@@ -14,6 +14,7 @@ import storage.Event
 import storage.cassandra.{CassandraStorage, Similarity, TrendingItemCount, ViewItem}
 import config.Config
 import stats.StatsHandler
+import scala.util.{ Success, Failure }
 
 
 object WebServer {
@@ -158,11 +159,14 @@ object WebServer {
       }
 
     val bindingFuture = Http().bindAndHandle(route, Config.SERVER_HOST, Config.SERVER_PORT)
-    println(s"Server online at http://${Config.SERVER_HOST}:${Config.SERVER_PORT}/\nPress RETURN to stop...")
-    StdIn.readLine() // let it run until user presses return
-    bindingFuture
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ ⇒ system.terminate()) // and shutdown when done
+    bindingFuture.onComplete {
+      case Success(bound) =>
+        println(s"Server online at http://${bound.localAddress.getHostString}:${bound.localAddress.getPort}/")
+      case Failure(e) =>
+        println(s"Server could not start!")
+        e.printStackTrace()
+    }
+
 
   }
 }
