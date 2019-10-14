@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: recommender
-        image: gcr.io/apollo-230806/recommender:v3
+        image: gcr.io/apollo-230806/recommender:v4
         ports:
         - containerPort: 8090
         resources:

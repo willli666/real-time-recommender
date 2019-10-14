@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: storm-worke
-        image: tjlian616/storm-worker:v2
+        image: tjlian616/storm-worker:v3
         resources:
           limits:
             cpu: 750m

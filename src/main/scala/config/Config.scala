@@ -5,7 +5,7 @@ object Config {
   val TOPIC = "recommender-clickstream"
   val ZK_SPOUT_ID = "kafka-recommender-clickstream"
 
-  val CASSANDRA_HOST = "cassandra-app-cassandra-0.cassandra-app-cassandra-svc.default.svc.cluster.local"
+  val CASSANDRA_HOST = "cassandra-1-cassandra-0.cassandra-1-cassandra-svc.default.svc.cluster.local"
   val CASSANDRA_KEYSPACE = "product_recommender"
 
   val ACTION_WEIGHTS = Map(

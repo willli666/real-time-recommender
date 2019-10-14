@@ -8,6 +8,7 @@ gcloud container clusters get-credentials [CLUSTER_NAME]
 
 https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl
 
+or simplely go to the cluster website and use the connect button on cluster view to get the pre-filled commands
 
 ## Step One: Launch Zookeeper
 ```
@@ -97,6 +98,7 @@ docker tag recommender  gcr.io/apollo-230806/recommender:v3
 docker push gcr.io/apollo-230806/recommender:v3
 docker tag [SOURCE_IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE]:[TAG]
 docker push [HOSTNAME]/[PROJECT-ID]/[IMAGE]
+gcloud docker -- push gcr.io/apollo-230806/recommender //on gcp vm
 ```
 3. edit the recommender-deployment for image version
 4. deploy app and then service
