@@ -1,11 +1,16 @@
-FROM openjdk:14-slim
+FROM openjdk:8-stretch
 
-RUN apt -y update
-RUN apt -y upgrade
-RUN apt install -y procps
-RUN apt install -y lsof
-RUN apt install -y curl
-COPY target/recommender-processor-assembly-1.0.jar /opt/
-WORKDIR /opt
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install procps lsof curl apt-transport-https git -y
+
+COPY . /opt/real-time-recommender/
+RUN  cd /opt/real-time-recommender/ &&\
+       sbt 'set test in assembly := {}' assembly &&\
+       cd ..
+
+WORKDIR /opt/real-time-recommender/
+
 EXPOSE 8090
-CMD ["java", "-cp", "recommender-processor-assembly-1.0.jar", "WebServer"]
+
+CMD ["java", "-cp", "target/recommender-processor-assembly-1.0.jar", "WebServer"]
