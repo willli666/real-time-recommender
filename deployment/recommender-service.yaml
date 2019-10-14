@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommender-service
+  labels:
+    name: recommender
+spec:
+  ports:
+  - port: 8090
+    targetPort: 8090
+    name: recommender-port
+    protocol: TCP
+  selector:
+    app: recommender
+  type: LoadBalancer

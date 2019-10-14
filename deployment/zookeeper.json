@@ -1,0 +1,33 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "zookeeper",
+    "labels": {
+      "name": "zookeeper"
+    }
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "zookeeper",
+        "image": "mattf/zookeeper",
+        "ports": [
+          {
+            "containerPort": 2181
+          }
+        ],
+        "resources": {
+          "limits": {
+            "cpu": "200m",
+            "memory": "300Mi"
+          },
+          "requests": {
+            "cpu": "100m",
+            "memory": "100Mi"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -4,7 +4,6 @@ logLevel := Level.Warn
 // It's simply instructing SBT what path to use to retrieve it from there.
 def outworkersPattern: Patterns = {
   val pattern = "[organisation]/[module](_[scalaVersion])(_[sbtVersion])/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-
   Patterns(
     pattern :: Nil,
     pattern :: Nil,

@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: recommender
+spec:
+  template:
+    metadata:
+      labels:
+        app: recommender
+    spec:
+      containers:
+      - name: recommender
+        image: gcr.io/apollo-230806/recommender:v2
+        ports:
+        - containerPort: 8090
+        resources:
+          requests:
+            memory: 500Mi
+            cpu: 500m
+          limits:
+            cpu: 1500m
+
