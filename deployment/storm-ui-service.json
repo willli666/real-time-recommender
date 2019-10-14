@@ -1,0 +1,24 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "storm-ui",
+    "labels": {
+      "name": "storm-ui"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "port": 8080,
+        "targetPort": 8080,
+        "protocol": "TCP",
+        "name": "storm-ui-port"
+      }
+    ],
+    "selector": {
+      "name": "storm-ui"
+    },
+    "type": "LoadBalancer"
+  }
+}
