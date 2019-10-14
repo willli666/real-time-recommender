@@ -1,7 +1,7 @@
 package config
 
 object Config {
-  val ZK_STRING = "10.52.15.107:2181"
+  val ZK_STRING = "10.52.6.228:2181"
   val TOPIC = "recommender-clickstream"
   val ZK_SPOUT_ID = "kafka-recommender-clickstream"
 
