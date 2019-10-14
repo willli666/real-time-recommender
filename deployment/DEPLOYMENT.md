@@ -89,5 +89,28 @@ kafkacat -b 35.222.168.239:9092 -t admintome-test
 kafkacat -L -b 35.222.168.239:9092
 
 ## Step Five: Deploy Recommender WebServer
+0. edit the ip in Config.scale and kafka-0.10.0.1--.properties
+1. build the Dockerfile in root
+2. push the new built file to google registry
+```
+docker tag recommender  gcr.io/apollo-230806/recommender:v3
+docker push gcr.io/apollo-230806/recommender:v3
+docker tag [SOURCE_IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE]:[TAG]
+docker push [HOSTNAME]/[PROJECT-ID]/[IMAGE]
+```
+3. edit the recommender-deployment for image version
+4. deploy app and then service
+```
+kubectl apply -f recommender-deployment.yaml
+kubectl apply -f recommender-service.yaml
+```
 
-
+## Step Six: Deploy the Topology in Storm Service
+```
+kubectl exec -it nimbus -c nimbus sh
+cd /real-time-recommender
+git pull
+sbt 'set test in assembly := {}' assembly
+```
+submit the topology file
+/opt/apache-storm/bin/storm jar /real-time-recommender/target/recommender-processor-assembly-1.0.jar storm.Topology
