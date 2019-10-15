@@ -40,13 +40,13 @@ Check to see if Nimbus is running and accessible
 ```
 $ kubectl get services
 NAME                          TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)             AGE
-nimbus                        ClusterIP   10.52.7.8     <none>        6627/TCP            83s
+nimbus                        ClusterIP   10.52.14.175     <none>        6627/TCP            83s
 zookeeper                     ClusterIP   10.52.6.228   <none>        2181/TCP            10m
 ```
 SSH into nimbus server and configure ZOOKEEPER_SERVICE_HOST and NIMBUS_SERVICE_HOST
 ```
 kubectl exec -it nimbus -c nimbus sh
-/configure.sh 10.52.6.228 10.52.7.8
+/configure.sh 10.52.6.228 10.52.14.175
 ./bin/storm list
 ```
 ## Step Three: Launch Storm Worker
