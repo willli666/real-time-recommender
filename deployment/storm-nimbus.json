@@ -11,7 +11,7 @@
     "containers": [
       {
         "name": "nimbus",
-        "image": "tjlian616/storm-nimbus:v3",
+        "image": "tjlian616/storm-nimbus:v4",
         "ports": [
           {
             "containerPort": 6627

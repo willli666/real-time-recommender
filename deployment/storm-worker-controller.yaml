@@ -17,8 +17,8 @@ spec:
         uses: nimbus
     spec:
       containers:
-      - name: storm-worke
-        image: tjlian616/storm-worker:v3
+      - name: storm-worker
+        image: tjlian616/storm-worker:v4
         resources:
           limits:
             cpu: 750m

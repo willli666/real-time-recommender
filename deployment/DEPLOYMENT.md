@@ -86,8 +86,8 @@ kubectl apply -f kafka-broker.yaml
 
 test with kafka cat  https://github.com/edenhill/kafkacat
 cat README | kafkacat -b 35.222.168.239:9092 -t admintome-test
-kafkacat -b 35.222.168.239:9092 -t admintome-test
-kafkacat -L -b 35.222.168.239:9092
+kafkacat -b 34.69.208.152:9092 -t admintome-test
+kafkacat -L -b 34.69.208.152:9092
 
 ## Step Five: Deploy Recommender WebServer
 0. edit the ip in Config.scale and kafka-0.10.0.1--.properties

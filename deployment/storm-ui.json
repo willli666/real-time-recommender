@@ -11,7 +11,7 @@
     "containers": [
       {
         "name": "storm-ui",
-        "image": "tjlian616/storm-ui:v3",
+        "image": "tjlian616/storm-ui:v4",
         "ports": [
           {
             "containerPort": 8080
