@@ -116,3 +116,44 @@ sbt 'set test in assembly := {}' assembly
 ```
 submit the topology file
 /opt/apache-storm/bin/storm jar /real-time-recommender/target/recommender-processor-assembly-1.0.jar storm.Topology
+
+## DEBUG cluster
+1. delete kafka topic
+
+kubectl exec -it kafka-broker0-749594ccf5-n8654  -c kafka bash
+// then delete the topic, it will be recreated automatically soon
+
+/opt/kafka/bin/kafka-topics.sh --zookeeper 10.52.6.228:2181 --delete --topic recommender-clickstream
+
+2. clear the cassandar database
+cqlsh 
+DESCRIBE keyspaces;
+USE product_recommender;
+DESCRIBE tables;
+
+
+TRUNCATE trendingitemcounts;
+TRUNCATE users;
+TRUNCATE userviews;
+TRUNCATE itemcounts;
+TRUNCATE similaritiesindex;
+TRUNCATE stats;
+TRUNCATE bestsellers;
+TRUNCATE bestsellersindex;
+TRUNCATE paircounts;
+TRUNCATE similarities;
+
+select * from trendingitemcounts;
+select * from users;
+select * from userviews;
+select * from itemcounts;
+select * from similaritiesindex;
+select * from stats;
+select * from bestsellers;
+select * from bestsellersindex;
+select * from paircounts;
+select * from similarities;
+
+3. check messages under a topic
+
+kafkacat -b localhost:9092 -t recommender-clickstream
