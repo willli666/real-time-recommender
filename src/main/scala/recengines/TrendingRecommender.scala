@@ -1,7 +1,9 @@
 package recengines
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Try,Success,Failure}
 import scala.concurrent.ExecutionContext.Implicits.global
 import config.Config
 import storage.Event
@@ -16,16 +18,32 @@ class TrendingRecommender(storage: CassandraStorage) {
     val action = event.action
     val weight = Config.ACTION_WEIGHTS(action)
 
+
     val trendingItems = getRecommendations()
-    trendingItems.onComplete {
-      case Success(items) =>
+    // trendingItems.onComplete {
+    //   case Success(items) =>
+    //     if (items.exists(_.itemId == itemId)) {
+    //       val currentItemIndex = items.indexWhere(_.itemId == itemId)
+    //       val currentScore = items(currentItemIndex).count
+    //       storage.trendingItemCounts.deleteRow(TrendingItemCount("trending", itemId, currentScore))
+    //       storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, currentScore + weight))
+    //     }
+
+    //     else if (items.length < Config.TRENDING_ITEMS_LIST_SIZE)
+    //       storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, weight))
+    //     else updateCounts(items, itemId, weight)
+
+    //   case Failure(msg) => println(msg)
+    // }
+
+    Try(Await.result(trendingItems, 1.second)) match {
+      case Success(items) => 
         if (items.exists(_.itemId == itemId)) {
           val currentItemIndex = items.indexWhere(_.itemId == itemId)
           val currentScore = items(currentItemIndex).count
           storage.trendingItemCounts.deleteRow(TrendingItemCount("trending", itemId, currentScore))
           storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, currentScore + weight))
         }
-
         else if (items.length < Config.TRENDING_ITEMS_LIST_SIZE)
           storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, weight))
         else updateCounts(items, itemId, weight)

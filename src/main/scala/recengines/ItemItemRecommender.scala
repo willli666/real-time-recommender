@@ -1,6 +1,8 @@
 package recengines
 
-import scala.util.{Failure, Success}
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Try,Success,Failure}
 import scala.math.{Ordering, min, sqrt}
 import scala.concurrent.ExecutionContext.Implicits.global
 import storage.cassandra.{CassandraStorage, Similarity, SimilarityIndex, User}
@@ -39,7 +41,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
       val newWeight = Config.ACTION_WEIGHTS(action)
       val user = storage.users.getById(userId)
 
-      user.onComplete {
+      Try(Await.result(user, 1.second)) match {
         case Success(Some(u)) =>
           val currentWeight = u.items.getOrElse(itemId, 0)
           if (currentWeight >= newWeight) ()
@@ -52,6 +54,20 @@ class ItemItemRecommender(storage: CassandraStorage) {
 
         case Failure(message) => println(message)
       }
+
+      // user.onComplete {
+      //   case Success(Some(u)) =>
+      //     val currentWeight = u.items.getOrElse(itemId, 0)
+      //     if (currentWeight >= newWeight) ()
+      //     else {
+      //       storage.users.updateUser(User(u.id, u.items + (itemId -> newWeight)))
+      //       recalculateSimilarity(u, itemId, currentWeight, newWeight)
+      //     }
+
+      //   case Success(None) => saveNewUser(userId, itemId, newWeight)
+
+      //   case Failure(message) => println(message)
+      // }
     }
   }
 
@@ -68,11 +84,16 @@ class ItemItemRecommender(storage: CassandraStorage) {
       } updatePair(itemId, currentWeight, newWeight, newItemCount, anotherItem)
     }
 
-    currentItemCount.onComplete{
+    Try(Await.result(currentItemCount, 1.second)) match {
       case Success(Some(item)) => callback(item.count)
       case Success(None) => callback(0)
       case Failure(message) => println(message)
     }
+    // currentItemCount.onComplete{
+    //   case Success(Some(item)) => callback(item.count)
+    //   case Success(None) => callback(0)
+    //   case Failure(message) => println(message)
+    // }
   }
 
   def updateItemCount(itemId: String, deltaWeight: Int): Unit = {
@@ -114,12 +135,17 @@ class ItemItemRecommender(storage: CassandraStorage) {
       else updateSimilarity(eventItemId, newItemCount, anotherItemId, initCount + deltaCoRating)
     }
 
-    currentPairCount.onComplete{
+    Try(Await.result(currentPairCount, 1.second)) match {
       case Success(Some(count)) => callback(count.count)
       case Success(None) => callback(0)
       case Failure(message) => println(message)
-      }
     }
+    // currentPairCount.onComplete{
+    //   case Success(Some(count)) => callback(count.count)
+    //   case Success(None) => callback(0)
+    //   case Failure(message) => println(message)
+    // }
+  }
 
 
   def updateSimilarity(firstItem: String, newItemCount: Long, secondItem: String, pairCount: Long): Unit = {
@@ -135,7 +161,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
     println("SAVING SIMILARITY")
     val pairId = getPairId(firstItem, secondItem)
     val similarityIndex = storage.similaritiesIndex.getById(pairId)
-    similarityIndex.onComplete{
+    Try(Await.result(similarityIndex, 1.second)) match {
       case Success(Some(currentSimilarity)) =>
         storage.similarities.deleteRow(Similarity(firstItem, secondItem, currentSimilarity.similarity))
         storage.similarities.deleteRow(Similarity(secondItem, firstItem, currentSimilarity.similarity))
@@ -150,6 +176,21 @@ class ItemItemRecommender(storage: CassandraStorage) {
 
       case Failure(message) => println(message)
     }
+    // similarityIndex.onComplete{
+    //   case Success(Some(currentSimilarity)) =>
+    //     storage.similarities.deleteRow(Similarity(firstItem, secondItem, currentSimilarity.similarity))
+    //     storage.similarities.deleteRow(Similarity(secondItem, firstItem, currentSimilarity.similarity))
+    //     storage.similarities.store(Similarity(firstItem, secondItem, similarity))
+    //     storage.similarities.store(Similarity(secondItem, firstItem, similarity))
+    //     storage.similaritiesIndex.store(SimilarityIndex(pairId, similarity))
+
+    //   case Success(None) =>
+    //     storage.similarities.store(Similarity(firstItem, secondItem, similarity))
+    //     storage.similarities.store(Similarity(secondItem, firstItem, similarity))
+    //     storage.similaritiesIndex.store(SimilarityIndex(pairId, similarity))
+
+    //   case Failure(message) => println(message)
+    // }
   }
 
   def saveNewUser(userId: String, itemId: String, weight: Int) = {

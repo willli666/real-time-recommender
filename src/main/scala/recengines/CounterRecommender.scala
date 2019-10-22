@@ -1,7 +1,9 @@
 package recengines
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Try,Success,Failure}
 import scala.concurrent.Future
 import storage._
 import cassandra._
@@ -25,7 +27,13 @@ class CounterRecommender(storage: CassandraStorage) {
 
   def checkUserViews(userId: String, item: ViewItem): Unit = {
     val userViews = storage.userViews.getById(userId)
-    userViews.onComplete {
+    // userViews.onComplete {
+    //   case Failure(msg) => println(msg)
+    //   case Success(None) => saveNewUserViews(userId, item)
+    //   case Success(Some(views)) => updateUserViews(views, item)
+    // }
+
+    Try(Await.result(userViews, 1.second)) match {
       case Failure(msg) => println(msg)
       case Success(None) => saveNewUserViews(userId, item)
       case Success(Some(views)) => updateUserViews(views, item)
@@ -48,11 +56,16 @@ class CounterRecommender(storage: CassandraStorage) {
 
   def checkBestSellers(itemId: String): Unit = {
     val bestSeller = storage.bestSellersIndex.getById(itemId)
-    bestSeller onComplete {
+    Try(Await.result(bestSeller, 1.second)) match {
       case Failure(msg) => println(msg)
       case Success(None) => saveNewBestSeller(itemId)
       case Success(Some(b)) => updateBestSeller(b)
     }
+    // bestSeller.onComplete {
+    //   case Failure(msg) => println(msg)
+    //   case Success(None) => saveNewBestSeller(itemId)
+    //   case Success(Some(b)) => updateBestSeller(b)
+    // }
   }
 
   def saveNewBestSeller(itemId: String): Unit = {
