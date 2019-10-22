@@ -1,11 +1,14 @@
 package config
 
 object Config {
-  val ZK_STRING = "10.52.6.228:2181"
+  val ZK_STRING = "localhost:2181"
+
+  // val ZK_STRING = "10.52.6.228:2181"
   val TOPIC = "recommender-clickstream"
   val ZK_SPOUT_ID = "kafka-recommender-clickstream"
 
-  val CASSANDRA_HOST = "cassandra-1-cassandra-0.cassandra-1-cassandra-svc.default.svc.cluster.local"
+  val CASSANDRA_HOST = "localhost"
+  // val CASSANDRA_HOST = "cassandra-1-cassandra-0.cassandra-1-cassandra-svc.default.svc.cluster.local"
   val CASSANDRA_KEYSPACE = "product_recommender"
 
   val ACTION_WEIGHTS = Map(
