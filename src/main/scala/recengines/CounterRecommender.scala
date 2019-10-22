@@ -27,17 +27,17 @@ class CounterRecommender(storage: CassandraStorage) {
 
   def checkUserViews(userId: String, item: ViewItem): Unit = {
     val userViews = storage.userViews.getById(userId)
-    // userViews.onComplete {
-    //   case Failure(msg) => println(msg)
-    //   case Success(None) => saveNewUserViews(userId, item)
-    //   case Success(Some(views)) => updateUserViews(views, item)
-    // }
-
-    Try(Await.result(userViews, 1.second)) match {
+    userViews.onComplete {
       case Failure(msg) => println(msg)
       case Success(None) => saveNewUserViews(userId, item)
       case Success(Some(views)) => updateUserViews(views, item)
     }
+
+    // Try(Await.result(userViews, 1.second)) match {
+    //   case Failure(msg) => println(msg)
+    //   case Success(None) => saveNewUserViews(userId, item)
+    //   case Success(Some(views)) => updateUserViews(views, item)
+    // }
   }
 
   def saveNewUserViews(userId: String, item: ViewItem): Unit = {
@@ -56,16 +56,16 @@ class CounterRecommender(storage: CassandraStorage) {
 
   def checkBestSellers(itemId: String): Unit = {
     val bestSeller = storage.bestSellersIndex.getById(itemId)
-    Try(Await.result(bestSeller, 1.second)) match {
-      case Failure(msg) => println(msg)
-      case Success(None) => saveNewBestSeller(itemId)
-      case Success(Some(b)) => updateBestSeller(b)
-    }
-    // bestSeller.onComplete {
+    // Try(Await.result(bestSeller, 1.second)) match {
     //   case Failure(msg) => println(msg)
     //   case Success(None) => saveNewBestSeller(itemId)
     //   case Success(Some(b)) => updateBestSeller(b)
     // }
+    bestSeller.onComplete {
+      case Failure(msg) => println(msg)
+      case Success(None) => saveNewBestSeller(itemId)
+      case Success(Some(b)) => updateBestSeller(b)
+    }
   }
 
   def saveNewBestSeller(itemId: String): Unit = {

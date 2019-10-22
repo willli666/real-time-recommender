@@ -20,36 +20,36 @@ class TrendingRecommender(storage: CassandraStorage) {
 
 
     val trendingItems = getRecommendations()
-    // trendingItems.onComplete {
-    //   case Success(items) =>
-    //     if (items.exists(_.itemId == itemId)) {
-    //       val currentItemIndex = items.indexWhere(_.itemId == itemId)
-    //       val currentScore = items(currentItemIndex).count
-    //       storage.trendingItemCounts.deleteRow(TrendingItemCount("trending", itemId, currentScore))
-    //       storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, currentScore + weight))
-    //     }
-
-    //     else if (items.length < Config.TRENDING_ITEMS_LIST_SIZE)
-    //       storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, weight))
-    //     else updateCounts(items, itemId, weight)
-
-    //   case Failure(msg) => println(msg)
-    // }
-
-    Try(Await.result(trendingItems, 1.second)) match {
-      case Success(items) => 
+    trendingItems.onComplete {
+      case Success(items) =>
         if (items.exists(_.itemId == itemId)) {
           val currentItemIndex = items.indexWhere(_.itemId == itemId)
           val currentScore = items(currentItemIndex).count
           storage.trendingItemCounts.deleteRow(TrendingItemCount("trending", itemId, currentScore))
           storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, currentScore + weight))
         }
+
         else if (items.length < Config.TRENDING_ITEMS_LIST_SIZE)
           storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, weight))
         else updateCounts(items, itemId, weight)
 
       case Failure(msg) => println(msg)
     }
+
+    // Try(Await.result(trendingItems, 1.second)) match {
+    //   case Success(items) => 
+    //     if (items.exists(_.itemId == itemId)) {
+    //       val currentItemIndex = items.indexWhere(_.itemId == itemId)
+    //       val currentScore = items(currentItemIndex).count
+    //       storage.trendingItemCounts.deleteRow(TrendingItemCount("trending", itemId, currentScore))
+    //       storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, currentScore + weight))
+    //     }
+    //     else if (items.length < Config.TRENDING_ITEMS_LIST_SIZE)
+    //       storage.trendingItemCounts.store(TrendingItemCount("trending", itemId, weight))
+    //     else updateCounts(items, itemId, weight)
+
+    //   case Failure(msg) => println(msg)
+    // }
 
   }
 
