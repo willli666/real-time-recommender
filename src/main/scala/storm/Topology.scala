@@ -22,17 +22,17 @@ object Topology {
     val kafkaSpout = createKafkaSpout(Config.ZK_STRING, Config.TOPIC, Config.ZK_SPOUT_ID)
 
     val builder = new TopologyBuilder()
-    builder.setSpout("kafka_spout", kafkaSpout, 2)
-    builder.setBolt("item_item_bolt", new ItemItemBolt(), 2).shuffleGrouping("kafka_spout")
-    builder.setBolt("trending_bolt", new TrendingBolt(), 2).shuffleGrouping("kafka_spout")
-    builder.setBolt("counter_bolt", new CounterBolt(), 2).shuffleGrouping("kafka_spout")
-    builder.setBolt("stats_bolt", new StatsBolt(), 2).shuffleGrouping("kafka_spout")
+    builder.setSpout("kafka_spout", kafkaSpout, 1)
+    builder.setBolt("item_item_bolt", new ItemItemBolt(), 1).shuffleGrouping("kafka_spout")
+    builder.setBolt("trending_bolt", new TrendingBolt(), 1).shuffleGrouping("kafka_spout")
+    builder.setBolt("counter_bolt", new CounterBolt(), 1).shuffleGrouping("kafka_spout")
+    builder.setBolt("stats_bolt", new StatsBolt(), 1).shuffleGrouping("kafka_spout")
 
     val config = new StormConfig()
-    config.setDebug(true)
-    config.setMessageTimeoutSecs(30)
-    config.setMaxSpoutPending(10000)
-    config.setTopologyWorkerMaxHeapSize(4096)
+    config.setDebug(false)
+    config.setMessageTimeoutSecs(300)
+    config.setMaxSpoutPending(100000)
+    config.setTopologyWorkerMaxHeapSize(8192)
 
     StormSubmitter.submitTopology("product-recommender", config, builder.createTopology())
   }
