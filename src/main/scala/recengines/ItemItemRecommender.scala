@@ -98,7 +98,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
 
   // this seems ok to be async
   def updateItemCount(itemId: String, deltaWeight: Int): Unit = {
-    storage.itemCounts.incrementCount(itemId, deltaWeight)
+    Await.result(storage.itemCounts.incrementCount(itemId, deltaWeight), 1.second)
   }
 
   def updatePair(eventItemId: String, currentItemWeight: Int, newItemWeight: Int,
@@ -152,10 +152,18 @@ class ItemItemRecommender(storage: CassandraStorage) {
   def updateSimilarity(firstItem: String, newItemCount: Long, secondItem: String, pairCount: Long): Unit = {
     val secondItemCount = storage.itemCounts.getById(secondItem)
     // println("PAIRCOUNT: " + pairCount + ", NEWITEMCOUNT: " + newItemCount)
-    for {
-      Some(secondItem) <- secondItemCount
-      similarity: Double = pairCount / (sqrt(newItemCount) * sqrt(secondItem.count))
-    } saveSimilarity(firstItem, secondItem.itemId, similarity)
+    Try(Await.result(secondItemCount, 1.second)) match{
+      case Success(Some(secondItem)) => 
+        var similarity = pairCount / (sqrt(newItemCount) * sqrt(secondItem.count))
+        saveSimilarity(firstItem, secondItem.itemId, similarity)
+      case Failure(message) => println(message)
+    }
+
+    // for {
+    //   Some(secondItem) <- secondItemCount
+    //   similarity: Double = pairCount / (sqrt(newItemCount) * sqrt(secondItem.count))
+    // } saveSimilarity(firstItem, secondItem.itemId, similarity)
+
   }
 
   def saveSimilarity(firstItem: String, secondItem: String, similarity: Double): Unit = {
