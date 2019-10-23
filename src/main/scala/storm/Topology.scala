@@ -24,7 +24,7 @@ object Topology {
     val builder = new TopologyBuilder()
     builder.setSpout("kafka_spout", kafkaSpout, 1)
     builder.setBolt("item_item_bolt", new ItemItemBolt(), 1).shuffleGrouping("kafka_spout")
-    builder.setBolt("trending_bolt", new TrendingBolt(), 1).shuffleGrouping("kafka_spout")
+    // builder.setBolt("trending_bolt", new TrendingBolt(), 1).shuffleGrouping("kafka_spout")
     builder.setBolt("counter_bolt", new CounterBolt(), 1).shuffleGrouping("kafka_spout")
     builder.setBolt("stats_bolt", new StatsBolt(), 1).shuffleGrouping("kafka_spout")
 
