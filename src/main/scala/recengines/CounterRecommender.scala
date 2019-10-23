@@ -41,16 +41,16 @@ class CounterRecommender(storage: CassandraStorage) {
   }
 
   def saveNewUserViews(userId: String, item: ViewItem): Unit = {
-    storage.userViews.store(UserViews(userId, item :: Nil))
+    Await.result(storage.userViews.store(UserViews(userId, item :: Nil)), 1.second)
   }
 
   def updateUserViews(lastViews: UserViews, newItem: ViewItem): Unit = {
     if (lastViews.views.exists(_.itemId == newItem.itemId)) {
       val updatedViews = lastViews.views.filter(_.itemId != newItem.itemId)
-      storage.userViews.store(UserViews(lastViews.userId, newItem :: updatedViews))
+      Await.result(storage.userViews.store(UserViews(lastViews.userId, newItem :: updatedViews)), 1.second)
     }
     else {
-      storage.userViews.store(UserViews(lastViews.userId, (newItem :: lastViews.views).take(Config.RECENT_VIEWS_LIST_SIZE)))
+      Await.result(storage.userViews.store(UserViews(lastViews.userId, (newItem :: lastViews.views).take(Config.RECENT_VIEWS_LIST_SIZE))),1.second)
     }
   }
 
@@ -69,14 +69,14 @@ class CounterRecommender(storage: CassandraStorage) {
   }
 
   def saveNewBestSeller(itemId: String): Unit = {
-    storage.bestSellers.store(BestSeller("bestseller", itemId, 1))
-    storage.bestSellersIndex.incrementCount(itemId)
+    Await.result(storage.bestSellers.store(BestSeller("bestseller", itemId, 1)),1.second)
+    Await.result(storage.bestSellersIndex.incrementCount(itemId),1.second)
   }
 
   def updateBestSeller(bestSeller: BestSellerIndex): Unit = {
-    storage.bestSellers.deleteRow(BestSeller("bestseller", bestSeller.itemId, bestSeller.score))
-    storage.bestSellers.store(BestSeller("bestseller", bestSeller.itemId, bestSeller.score + 1))
-    storage.bestSellersIndex.incrementCount(bestSeller.itemId)
+    Await.result(storage.bestSellers.deleteRow(BestSeller("bestseller", bestSeller.itemId, bestSeller.score)),1.second)
+    Await.result(storage.bestSellers.store(BestSeller("bestseller", bestSeller.itemId, bestSeller.score + 1)),1.second)
+    Await.result(storage.bestSellersIndex.incrementCount(bestSeller.itemId),1.second)
   }
 
   def getBestSellers(limit: Int = 100): Future[Seq[BestSeller]] = {

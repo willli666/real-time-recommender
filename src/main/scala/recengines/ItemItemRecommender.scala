@@ -46,7 +46,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
           val currentWeight = u.items.getOrElse(itemId, 0)
           if (currentWeight >= newWeight) ()
           else {
-            storage.users.updateUser(User(u.id, u.items + (itemId -> newWeight)))
+            Await.result(storage.users.updateUser(User(u.id, u.items + (itemId -> newWeight))), 1.second)
             recalculateSimilarity(u, itemId, currentWeight, newWeight)
           }
 
@@ -96,6 +96,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
     // }
   }
 
+  // this seems ok to be async
   def updateItemCount(itemId: String, deltaWeight: Int): Unit = {
     storage.itemCounts.incrementCount(itemId, deltaWeight)
   }
@@ -163,16 +164,16 @@ class ItemItemRecommender(storage: CassandraStorage) {
     val similarityIndex = storage.similaritiesIndex.getById(pairId)
     Try(Await.result(similarityIndex, 1.second)) match {
       case Success(Some(currentSimilarity)) =>
-        storage.similarities.deleteRow(Similarity(firstItem, secondItem, currentSimilarity.similarity))
-        storage.similarities.deleteRow(Similarity(secondItem, firstItem, currentSimilarity.similarity))
-        storage.similarities.store(Similarity(firstItem, secondItem, similarity))
-        storage.similarities.store(Similarity(secondItem, firstItem, similarity))
-        storage.similaritiesIndex.store(SimilarityIndex(pairId, similarity))
+        Await.result(storage.similarities.deleteRow(Similarity(firstItem, secondItem, currentSimilarity.similarity)), 1.second)
+        Await.result(storage.similarities.deleteRow(Similarity(secondItem, firstItem, currentSimilarity.similarity)), 1.second)
+        Await.result(storage.similarities.store(Similarity(firstItem, secondItem, similarity)), 1.second)
+        Await.result(storage.similarities.store(Similarity(secondItem, firstItem, similarity)), 1.second)
+        Await.result(storage.similaritiesIndex.store(SimilarityIndex(pairId, similarity)), 1.second)
 
       case Success(None) =>
-        storage.similarities.store(Similarity(firstItem, secondItem, similarity))
-        storage.similarities.store(Similarity(secondItem, firstItem, similarity))
-        storage.similaritiesIndex.store(SimilarityIndex(pairId, similarity))
+        Await.result(storage.similarities.store(Similarity(firstItem, secondItem, similarity)), 1.second)
+        Await.result(storage.similarities.store(Similarity(secondItem, firstItem, similarity)), 1.second)
+        Await.result(storage.similaritiesIndex.store(SimilarityIndex(pairId, similarity)), 1.second)
 
       case Failure(message) => println(message)
     }
@@ -193,9 +194,11 @@ class ItemItemRecommender(storage: CassandraStorage) {
     // }
   }
 
+  // this is async now
   def saveNewUser(userId: String, itemId: String, weight: Int) = {
     println("SAVING NEW USER")
-    storage.users.store(User(userId, Map(itemId -> weight)))
+    var storeFuture = storage.users.store(User(userId, Map(itemId -> weight)))
+    Await.result(storeFuture, 1.second)
     updateItemCount(itemId, weight)
   }
 
