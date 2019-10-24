@@ -30,7 +30,7 @@ object Topology {
 
     val config = new StormConfig()
     config.setDebug(false)
-    config.setMessageTimeoutSecs(300)
+    config.setMessageTimeoutSecs(3600)
     config.setMaxSpoutPending(100000)
     config.setTopologyWorkerMaxHeapSize(8192)
 
