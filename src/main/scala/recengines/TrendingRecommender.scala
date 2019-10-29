@@ -36,7 +36,7 @@ class TrendingRecommender(storage: CassandraStorage) {
     //   case Failure(msg) => println(msg)
     // }
 
-    Try(Await.result(trendingItems, 1.second)) match {
+    Try(Await.result(trendingItems, 2.second)) match {
       case Success(items) => 
         if (items.exists(_.itemId == itemId)) {
           val currentItemIndex = items.indexWhere(_.itemId == itemId)

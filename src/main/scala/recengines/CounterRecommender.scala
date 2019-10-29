@@ -33,7 +33,7 @@ class CounterRecommender(storage: CassandraStorage) {
     //   case Success(Some(views)) => updateUserViews(views, item)
     // }
 
-    Try(Await.result(userViews, 1.second)) match {
+    Try(Await.result(userViews, 2.second)) match {
       case Failure(msg) => println(msg)
       case Success(None) => saveNewUserViews(userId, item)
       case Success(Some(views)) => updateUserViews(views, item)
@@ -41,22 +41,22 @@ class CounterRecommender(storage: CassandraStorage) {
   }
 
   def saveNewUserViews(userId: String, item: ViewItem): Unit = {
-    Await.result(storage.userViews.store(UserViews(userId, item :: Nil)), 1.second)
+    Await.result(storage.userViews.store(UserViews(userId, item :: Nil)), 2.second)
   }
 
   def updateUserViews(lastViews: UserViews, newItem: ViewItem): Unit = {
     if (lastViews.views.exists(_.itemId == newItem.itemId)) {
       val updatedViews = lastViews.views.filter(_.itemId != newItem.itemId)
-      Await.result(storage.userViews.store(UserViews(lastViews.userId, newItem :: updatedViews)), 1.second)
+      Await.result(storage.userViews.store(UserViews(lastViews.userId, newItem :: updatedViews)), 2.second)
     }
     else {
-      Await.result(storage.userViews.store(UserViews(lastViews.userId, (newItem :: lastViews.views).take(Config.RECENT_VIEWS_LIST_SIZE))),1.second)
+      Await.result(storage.userViews.store(UserViews(lastViews.userId, (newItem :: lastViews.views).take(Config.RECENT_VIEWS_LIST_SIZE))),2.second)
     }
   }
 
   def checkBestSellers(itemId: String): Unit = {
     val bestSeller = storage.bestSellersIndex.getById(itemId)
-    Try(Await.result(bestSeller, 1.second)) match {
+    Try(Await.result(bestSeller, 2.second)) match {
       case Failure(msg) => println(msg)
       case Success(None) => saveNewBestSeller(itemId)
       case Success(Some(b)) => updateBestSeller(b)
@@ -69,14 +69,14 @@ class CounterRecommender(storage: CassandraStorage) {
   }
 
   def saveNewBestSeller(itemId: String): Unit = {
-    Await.result(storage.bestSellers.store(BestSeller("bestseller", itemId, 1)),1.second)
-    Await.result(storage.bestSellersIndex.incrementCount(itemId),1.second)
+    Await.result(storage.bestSellers.store(BestSeller("bestseller", itemId, 1)),2.second)
+    Await.result(storage.bestSellersIndex.incrementCount(itemId),2.second)
   }
 
   def updateBestSeller(bestSeller: BestSellerIndex): Unit = {
-    Await.result(storage.bestSellers.deleteRow(BestSeller("bestseller", bestSeller.itemId, bestSeller.score)),1.second)
-    Await.result(storage.bestSellers.store(BestSeller("bestseller", bestSeller.itemId, bestSeller.score + 1)),1.second)
-    Await.result(storage.bestSellersIndex.incrementCount(bestSeller.itemId),1.second)
+    Await.result(storage.bestSellers.deleteRow(BestSeller("bestseller", bestSeller.itemId, bestSeller.score)),2.second)
+    Await.result(storage.bestSellers.store(BestSeller("bestseller", bestSeller.itemId, bestSeller.score + 1)),2.second)
+    Await.result(storage.bestSellersIndex.incrementCount(bestSeller.itemId),2.second)
   }
 
   def getBestSellers(limit: Int = 100): Future[Seq[BestSeller]] = {
