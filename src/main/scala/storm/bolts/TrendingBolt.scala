@@ -15,7 +15,7 @@ class TrendingBolt extends BaseBasicBolt {
     implicit val eventFormat = jsonFormat6(Event)
     val event = new String(input.getBinary(0)).parseJson.convertTo[Event]
     val recommender = new TrendingRecommender(CassandraStorage)
-    // recommender.trackEvent(event)
+    recommender.trackEvent(event)
   }
 
   override def declareOutputFields(declarer: OutputFieldsDeclarer): Unit = {
