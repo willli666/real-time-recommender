@@ -14,6 +14,7 @@ object Config {
   val ACTION_WEIGHTS = Map(
     "display" -> 0,
     "hover" -> 1,
+    "visit" -> 2,
     "click" -> 2,
     "like" -> 3,
     "share" -> 4,
