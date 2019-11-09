@@ -307,3 +307,13 @@ rmr /storm
 rmr /recommender-clickstream
 rmr /brokers/topics
 
+
+## view the current offset of storm topology
+//https://github.com/nathanmarz/storm-contrib/tree/master/storm-kafka
+
+1. get into zookeeper
+kafka/bin/zookeeper-shell.sh  localhost:2181
+2. list topology details
+get /recommender-clickstream/kafka-recommender-clickstream/partition_0
+
+also you can use KafkaTool (app on mac) and its zookeeper viewer tool
