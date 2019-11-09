@@ -277,7 +277,7 @@ sbt 'set test in assembly := {}' assembly
 sudo systemctl start kafka
 
 // start webserver
-java -cp real-time-recommender/target/recommender-processor-assembly-1.0.jar WebServer
+java -cp ~/real-time-recommender/target/recommender-processor-assembly-1.0.jar WebServer
 // send one fake event to trigger kafka topic create
 curl -X POST \
   localhost:8090/learn \

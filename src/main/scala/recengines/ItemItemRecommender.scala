@@ -220,7 +220,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
 
   def getRecommendations(userId: String, limit: Int = 10): Future[Seq[((String, Int), Seq[Similarity])]] = {
 
-    print("getRecommendations"+userId)
+    println("getRecommendations"+userId)
 
     type UserItem = (String, Int)
 

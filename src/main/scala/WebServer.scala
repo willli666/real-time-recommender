@@ -65,7 +65,7 @@ object WebServer {
           parameter('limit.as[Int] ? 100) { limit =>
          // val recommendedItems: Future[Seq[(String, Double)]] = itemItemRecommender.getRecommendations(id, limit) 
             val recommendedItems: Future[Seq[((String, Int), Seq[Similarity])]] = itemItemRecommender.getRecommendations(id, limit)
-
+            println("WebServer.scala id is "+id)
             onSuccess(recommendedItems) {
               rec => complete(ItemsRecommendation(uuid, rec))
             }
