@@ -216,11 +216,8 @@ class ItemItemRecommender(storage: CassandraStorage) {
 //    similarities.map(simList => (Similarity(itemId, itemId, 1) +: simList).map(sim => Map("item" -> sim.anotherItemId, "title" -> moviesNames(sim.anotherItemId), "score" -> sim.similarity)))
   }
 
-  // def getRecommendations(userId: String, limit: Int = 10): Future[Seq[(String, Double)]] = {
 
-  def getRecommendations(userId: String, limit: Int = 10): Future[Seq[((String, Int), Seq[Similarity])]] = {
-
-    println("getRecommendations"+userId)
+  def getRecommendations(userId: String, limit: Int = 10): Future[Seq[(String, Double)]] = {
 
     type UserItem = (String, Int)
 
@@ -252,26 +249,10 @@ class ItemItemRecommender(storage: CassandraStorage) {
       }.toSeq
     }
 
-    // for {
-    //   items <- storage.users.getById(userId).map(getUserItems)
-    //   recommendations <- reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
-    // } yield recommendations.filter(rec => !items.map(_._1).contains(rec._1)).sortWith(_._2 > _._2)
-
     for {
       items <- storage.users.getById(userId).map(getUserItems)
-      recommendations <- reformatSimilarity(getItemSimilarity(items))
-    } yield recommendations
+      recommendations <- reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
+    } yield recommendations.filter(rec => !items.map(_._1).contains(rec._1)).sortWith(_._2 > _._2)
 
-/*
-    vWBkh_8F0LLPVm15KuYxfuCx89UXMtpr
-    items = a list of  [{'sku1349': 4}]  
-    getItemSimilarity(items)  -> ({'sku1349': 4}, [{"itemId":"sku1349","anotherItemId":"sku2671","similarity":0.09604734379941232},{"itemId":"sku1349","anotherItemId":"sku598406","similarity":0.09604734379941232}])
-    reformatSimilarity(getItemSimilarity(items)) ->
-*/
-    //test code
-    // val items = storage.users.getById(userId).map(getUserItems)
-    // val recommendations = reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
-
-    // recommendations.filter(rec => !items.map(_._1).contains(rec._1)).sortWith(_._2 > _._2)
   }
 }
