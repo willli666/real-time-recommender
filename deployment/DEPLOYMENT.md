@@ -317,3 +317,8 @@ kafka/bin/zookeeper-shell.sh  localhost:2181
 get /recommender-clickstream/kafka-recommender-clickstream/partition_0
 
 also you can use KafkaTool (app on mac) and its zookeeper viewer tool
+
+
+## view the total number of kafka
+1. install kf (search on github)
+2. ./kt topic -leaders  -partitions -replicas
