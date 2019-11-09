@@ -217,6 +217,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
   }
 
   def getRecommendations(userId: String, limit: Int = 10): Future[Seq[(String, Double)]] = {
+    print("getRecommendations"+userId)
 
     type UserItem = (String, Int)
 
@@ -252,5 +253,11 @@ class ItemItemRecommender(storage: CassandraStorage) {
       items <- storage.users.getById(userId).map(getUserItems)
       recommendations <- reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
     } yield recommendations.filter(rec => !items.map(_._1).contains(rec._1)).sortWith(_._2 > _._2)
+
+    //test code
+    // val items = storage.users.getById(userId).map(getUserItems)
+    // val recommendations = reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
+
+    // recommendations.filter(rec => !items.map(_._1).contains(rec._1)).sortWith(_._2 > _._2)
   }
 }
