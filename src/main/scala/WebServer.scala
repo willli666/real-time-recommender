@@ -20,7 +20,7 @@ import scala.util.{ Success, Failure }
 object WebServer {
 
   final case class SimilaritiesRecommendation(id: String, recommendation: Seq[Similarity])
-  final case class ItemsRecommendation(id: String, recommendation: Seq[(String, Double)])
+  final case class ItemsRecommendation(id: String, recommendation: Seq[((String, Int), Seq[Similarity])])
   final case class CounterRecommendation(id: String, recommendation: Seq[(String, Long)])
   final case class RecentViews(id: String, recommendation: List[ViewItem])
 
@@ -63,7 +63,8 @@ object WebServer {
         } ~
         pathPrefix("user" / """\w+""".r) { id =>
           parameter('limit.as[Int] ? 100) { limit =>
-            val recommendedItems: Future[Seq[(String, Double)]] = itemItemRecommender.getRecommendations(id, limit)
+         // val recommendedItems: Future[Seq[(String, Double)]] = itemItemRecommender.getRecommendations(id, limit) 
+            val recommendedItems: Future[Seq[((String, Int), Seq[Similarity])]] = itemItemRecommender.getRecommendations(id, limit)
 
             onSuccess(recommendedItems) {
               rec => complete(ItemsRecommendation(uuid, rec))

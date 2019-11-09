@@ -216,7 +216,10 @@ class ItemItemRecommender(storage: CassandraStorage) {
 //    similarities.map(simList => (Similarity(itemId, itemId, 1) +: simList).map(sim => Map("item" -> sim.anotherItemId, "title" -> moviesNames(sim.anotherItemId), "score" -> sim.similarity)))
   }
 
-  def getRecommendations(userId: String, limit: Int = 10): Future[Seq[(String, Double)]] = {
+  // def getRecommendations(userId: String, limit: Int = 10): Future[Seq[(String, Double)]] = {
+
+  def getRecommendations(userId: String, limit: Int = 10): Future[Seq[((String, Int), Seq[Similarity])]] = {
+
     print("getRecommendations"+userId)
 
     type UserItem = (String, Int)
@@ -256,7 +259,7 @@ class ItemItemRecommender(storage: CassandraStorage) {
 
     for {
       items <- storage.users.getById(userId).map(getUserItems)
-      recommendations <- getItemSimilarity(items)
+      recommendations <- reformatSimilarity(getItemSimilarity(items))
     } yield recommendations
 
 /*
