@@ -61,7 +61,7 @@ object WebServer {
             }
           }
         } ~
-        pathPrefix("user" / """\w+""".r) { id =>
+        pathPrefix("user" / """\S+""".r) { id =>
           parameter('limit.as[Int] ? 100) { limit =>
          // val recommendedItems: Future[Seq[(String, Double)]] = itemItemRecommender.getRecommendations(id, limit) 
             val recommendedItems: Future[Seq[((String, Int), Seq[Similarity])]] = itemItemRecommender.getRecommendations(id, limit)
