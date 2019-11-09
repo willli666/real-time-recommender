@@ -29,7 +29,7 @@ object Topology {
     builder.setBolt("stats_bolt", new StatsBolt(), 1).shuffleGrouping("kafka_spout")
 
     val config = new StormConfig()
-    config.setDebug(false)
+    config.setDebug(true)
     config.setMessageTimeoutSecs(7200)
     config.setMaxSpoutPending(100000)
     config.setTopologyWorkerMaxHeapSize(8192)

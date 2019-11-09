@@ -126,11 +126,12 @@ kubectl exec -it kafka-broker0-749594ccf5-n8654  -c kafka bash
 /opt/kafka/bin/kafka-topics.sh --zookeeper 10.52.6.228:2181 --delete --topic recommender-clickstream
 
 2. clear the cassandar database
+export CQLSH_NO_BUNDLED=true
+
 cqlsh 
 DESCRIBE keyspaces;
 USE product_recommender;
 DESCRIBE tables;
-
 
 TRUNCATE trendingitemcounts;
 TRUNCATE users;
@@ -157,3 +158,152 @@ select * from similarities;
 3. check messages under a topic
 
 kafkacat -b localhost:9092 -t recommender-clickstream
+
+
+## Install everything on a VM
+docker build -t localTag .
+docker tag imageId  tjlian616/imagename:imagetag
+docker push tjlian616/imagename:imagetag
+
+
+docker for zookeeper
+debian
+apt-get install zookeeper
+
+ENTRYPOINT ["/usr/share/zookeeper/bin/zkServer.sh"]
+CMD ["start-foreground"]
+
+Install Java ( for kafka)
+- sudo apt update
+- Sudo apt install default-jre
+- Sudo apt install default-jdk
+- sudo update-alternatives --config javac
+- sudo nano /etc/environment to set JAVA_HOME=“”
+https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-debian-9#installing-the-default-jrejdk
+
+
+
+Install Kafka
+https://www.digitalocean.com/community/tutorials/how-to-install-apache-kafka-on-debian-9
+- Create a new user kafka (kafka)
+- Download kafka tar to user’s directory
+- Create  /etc/systemd/system/zookeeper.service and  /etc/systemd/system/kafka.service
+- sudo systemctl start kafka (now listening on 9092)
+- sudo systemctl enable kafka (reboot restart enabled)
+- 
+
+Install Cassandra
+http://cassandra.apache.org/doc/latest/getting_started/installing.html
+https://stackoverflow.com/questions/38616858/cqlsh-connection-error-ref-does-not-take-keyword-arguments
+sudo apt-get install cassandra
+sudo service cassandra status
+sudo nodetool status
+https://stackoverflow.com/questions/16783725/error-while-connecting-to-cassandra-using-java-driver-for-apache-cassandra-1-0-f
+https://stackoverflow.com/questions/38616858/cqlsh-connection-error-ref-does-not-take-keyword-arguments
+
+
+Install Storm
+- Create user storm in the same way as of Kafka tutorial
+- Download and modify storm configuration as this tutorial https://www.tutorialspoint.com/apache_storm/apache_storm_installation.htm
+- Create unit service file in the same way of Kafka tutorial and also look at this https://github.com/salt-formulas/salt-formula-storm/tree/master/storm/files/systemd
+- Also learn from here and test the installation with it  https://knowm.org/how-to-install-a-distributed-apache-storm-cluster/
+
+Install Docker
+https://linuxize.com/post/how-to-install-and-use-docker-on-debian-9/
+
+Install  sbt
+https://www.scala-sbt.org/release/docs/sbt-by-example.html
+
+
+Read More about how to docker everything
+https://endocode.com/blog/2015/05/06/building-a-stream-processing-pipeline-with-kafka-storm-and-cassandra-part-3-using-coreos/
+
+Error on java libraries
+https://stackoverflow.com/questions/21894128/how-to-install-sigar-on-ubuntu-based-linux
+
+// submit topology
+/home/storm/storm/bin/storm jar /home/willapollobox_gmail_com/real-time-recommender/target/recommender-processor-assembly-1.0.jar storm.Topology
+
+// show all topology
+/home/kafka/kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --list
+
+//create a topic
+/kafka-topics.sh --zookeeper localhost:2181 --create --topic test1 --partitions 1 --replication-factor 1
+
+// delete
+/home/kafka/kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic recommender-clickstream
+
+
+// read current stream from kafka
+kafkacat -b localhost:9092 -t recommender-clickstream
+
+// increase storm java memory
+https://stackoverflow.com/questions/50443737/increasing-assigned-memory-for-a-topology-in-storm
+https://www.freecodecamp.org/news/apache-storm-is-awesome-this-is-why-you-should-be-using-it-d7c37519a427/
+https://storm.apache.org/releases/2.0.0/Understanding-the-parallelism-of-a-Storm-topology.html
+
+
+## Reset a VM setup
+
+how to reset a recommender VM?
+
+// stop storm
+sudo systemctl stop storm-ui &&
+sudo systemctl stop storm-supervisor &&
+sudo systemctl stop  storm-nimbus
+
+// stop webServer
+ps aux | grep WebServer
+sudo kill +9 xxx
+
+// delete topic
+kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --list
+kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic recommender-clickstream
+
+// stop kafka
+sudo systemctl stop kafka
+
+// delete tables in cassandar
+export CQLSH_NO_BUNDLED=true
+cqlsh //then  see DEPLOYMENT.md 
+
+//git pull real-time-recommender
+nano src/main/scala/config/Config.scala
+nano src/main/resources/kafka-0.10.0.1-producer-defaults.properties
+sbt assembly
+sbt 'set test in assembly := {}' assembly
+
+// start kafka
+sudo systemctl start kafka
+
+// start webserver
+java -cp real-time-recommender/target/recommender-processor-assembly-1.0.jar WebServer
+// send one fake event to trigger kafka topic create
+curl -X POST \
+  localhost:8090/learn \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "userId": "some_user",
+     "itemId": "some_item",
+     "action": "click",
+     "timestamp": 1482744482113,
+     "price": 1
+}'
+
+// start storm
+sudo systemctl start storm-nimbus && 
+sudo systemctl start storm-supervisor && 
+sudo systemctl start storm-ui
+// submit storm topology
+storm/bin/storm jar  real-time-recommender/target/recommender-processor-assembly-1.0.jar storm.Topology
+
+// use juypter to send events
+
+
+kafka/bin/zookeeper-shell.sh  localhost:2181
+ls /brokers/ids
+ls /brokers/topics
+rmr /storm
+rmr /recommender-clickstream
+rmr /brokers/topics
+
