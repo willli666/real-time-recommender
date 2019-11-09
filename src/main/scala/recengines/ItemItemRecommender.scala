@@ -249,11 +249,22 @@ class ItemItemRecommender(storage: CassandraStorage) {
       }.toSeq
     }
 
+    // for {
+    //   items <- storage.users.getById(userId).map(getUserItems)
+    //   recommendations <- reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
+    // } yield recommendations.filter(rec => !items.map(_._1).contains(rec._1)).sortWith(_._2 > _._2)
+
     for {
       items <- storage.users.getById(userId).map(getUserItems)
-      recommendations <- reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
-    } yield recommendations.filter(rec => !items.map(_._1).contains(rec._1)).sortWith(_._2 > _._2)
+      recommendations <- getItemSimilarity(items)
+    } yield recommendations
 
+/*
+    vWBkh_8F0LLPVm15KuYxfuCx89UXMtpr
+    items = a list of  [{'sku1349': 4}]  
+    getItemSimilarity(items)  -> ({'sku1349': 4}, [{"itemId":"sku1349","anotherItemId":"sku2671","similarity":0.09604734379941232},{"itemId":"sku1349","anotherItemId":"sku598406","similarity":0.09604734379941232}])
+    reformatSimilarity(getItemSimilarity(items)) ->
+*/
     //test code
     // val items = storage.users.getById(userId).map(getUserItems)
     // val recommendations = reformatSimilarity(getItemSimilarity(items)).map(getSimilaritySummands).map(getSimilaritySum)
