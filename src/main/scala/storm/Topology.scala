@@ -30,8 +30,8 @@ object Topology {
 
     val config = new StormConfig()
     config.setDebug(true)
-    config.setMessageTimeoutSecs(7200)
-    config.setMaxSpoutPending(100000)
+    config.setMessageTimeoutSecs(3600)
+    config.setMaxSpoutPending(3600)
     config.setTopologyWorkerMaxHeapSize(8192)
 
     StormSubmitter.submitTopology("product-recommender", config, builder.createTopology())
